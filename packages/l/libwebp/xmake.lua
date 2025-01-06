@@ -27,8 +27,6 @@ package("libwebp")
     add_configs("extras",     {description = "Build extras.", default = false, type = "boolean"})
     add_configs("thread",     {description = "Enable threading support.", default = true, type = "boolean"})
 
-    add_deps("cmake")
-
     on_load(function (package)
         local links = {"webpdecoder", "webpencoder", "webpdemux"}
         if package:config("libwebpmux") then
@@ -45,6 +43,12 @@ package("libwebp")
             else
                 package:add("links", l)
             end
+        end
+
+        if package:is_built() then
+            package:add("deps", "cmake")
+            package:add("deps", "ninja")
+            package:add("deps", "nasm")
         end
     end)
 

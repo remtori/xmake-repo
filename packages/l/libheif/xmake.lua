@@ -10,7 +10,6 @@ package("libheif")
     add_versions("1.17.6", "8390baf4913eda0a183e132cec62b875fb2ef507ced5ddddc98dfd2f17780aee")
     add_versions("1.12.0", "e1ac2abb354fdc8ccdca71363ebad7503ad731c84022cf460837f0839e171718")
 
-    add_deps("cmake")
     local configdeps = {"libde265", "x265", "dav1d"}
     for _, conf in ipairs(configdeps) do
         add_configs(conf, {description = "Build " .. conf .. " encoder/decoder.", default = false, type = "boolean"})
@@ -24,6 +23,14 @@ package("libheif")
             if package:config(conf) then
                 package:add("deps", conf)
             end
+        end
+    end)
+
+    on_load(function (package)
+        if package:is_built() then
+            package:add("deps", "cmake")
+            package:add("deps", "ninja")
+            package:add("deps", "nasm")
         end
     end)
 

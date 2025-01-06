@@ -21,6 +21,14 @@ package("libpng")
         add_syslinks("m")
     end
 
+    on_load(function (package)
+        if package:is_built() then
+            package:add("deps", "cmake")
+            package:add("deps", "ninja")
+            package:add("deps", "nasm")
+        end
+    end)
+
     on_install(function (package)
         local configs = {}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))

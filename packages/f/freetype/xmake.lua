@@ -42,6 +42,12 @@ package("freetype")
         add_dep("png", "libpng")
         add_dep("woff2", "brotli")
         add_dep("harfbuzz")
+
+        if package:is_built() then
+            package:add("deps", "cmake")
+            package:add("deps", "ninja")
+            package:add("deps", "nasm")
+        end
     end)
 
     on_install(function (package)
