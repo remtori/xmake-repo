@@ -19,8 +19,6 @@ package('skia')
 
     add_links("skia")
 
-    add_deps("gn", "python", "ninja", {kind = "binary"})
-
 	local external_deps = {
         'icu4c',
 		'freetype',
@@ -38,6 +36,14 @@ package('skia')
     end
 
 	add_deps(table.unpack(external_deps))
+
+    on_load(function (package)
+        if package:is_built() then
+            package:add("deps", "gn")
+            package:add("deps", "python")
+            package:add("deps", "ninja")
+        end
+    end)
 
     on_install(function (package)
         local args = {is_official_build = true,

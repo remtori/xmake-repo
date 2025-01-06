@@ -50,7 +50,7 @@ package("harfbuzz")
 
     on_load(function (package)
         if package:config("icu") then
-            package:add("deps", "icu")
+            package:add("deps", "icu", { system = false })
         end
         if package:config("freetype") then
             package:add("deps", "freetype")
