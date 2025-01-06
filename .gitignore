@@ -1,0 +1,6 @@
+.xmake/
+build/
+
+.DS_Store
+*.bak
+Thumbs.db
