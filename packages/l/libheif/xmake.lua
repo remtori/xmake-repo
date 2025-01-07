@@ -15,22 +15,22 @@ package("libheif")
         add_configs(conf, {description = "Build " .. conf .. " encoder/decoder.", default = false, type = "boolean"})
     end
 
-    on_load("windows", function (package)
-        if not package:config("shared") then
-            package:add("defines", "LIBHEIF_STATIC_BUILD")
-        end
-        for _, conf in ipairs(configdeps) do
-            if package:config(conf) then
-                package:add("deps", conf)
-            end
-        end
-    end)
-
     on_load(function (package)
         if package:is_built() then
             package:add("deps", "cmake")
             package:add("deps", "ninja")
             package:add("deps", "nasm")
+        end
+
+        if package:is_plat("windows") then
+            if not package:config("shared") then
+                package:add("defines", "LIBHEIF_STATIC_BUILD")
+            end
+            for _, conf in ipairs(configdeps) do
+                if package:config(conf) then
+                    package:add("deps", conf)
+                end
+            end
         end
     end)
 
