@@ -68,7 +68,7 @@ package("freetype")
                     local libconf = opt.cmakelib or (opt.cmakewith .. "_LIBRARIES")
                     local fetchinfo = lib:fetch()
                     if fetchinfo then
-                        table.insert(configs, "-D" .. includeconf .. "=" .. table.concat(fetchinfo.includedirs or fetchinfo.sysincludedirs, ";"))
+                        table.insert(configs, "-D" .. includeconf .. "=" .. (fetchinfo.includedirs or fetchinfo.sysincludedirs)[1])
                         table.insert(configs, "-D" .. libconf .. "=" .. table.concat(fetchinfo.libfiles, ";"))
                     end
                 end

@@ -28,16 +28,6 @@ package("harfbuzz")
 
     add_configs("icu", {description = "Enable ICU library unicode functions.", default = false, type = "boolean"})
     add_configs("freetype", {description = "Enable freetype interop helpers.", default = true, type = "boolean"})
-    add_configs("glib", {description = "Enable glib unicode functions.", default = false, type = "boolean"})
-
-    if is_plat("android") then
-        add_deps("cmake")
-    else
-        add_deps("meson", "ninja")
-        if is_plat("windows") then
-            add_deps("pkgconf")
-        end
-    end
 
     add_includedirs("include/harfbuzz")
     if is_plat("macosx") then
@@ -50,44 +40,35 @@ package("harfbuzz")
 
     on_load(function (package)
         if package:config("icu") then
-            package:add("deps", "icu", { system = false })
+            package:add("deps", "icu4c")
         end
         if package:config("freetype") then
             package:add("deps", "freetype")
         end
-        if package:config("glib") then
-            package:add("deps", "glib", "pcre2")
-            if package:is_plat("windows") then
-                package:add("deps", "libintl")
-            elseif package:is_plat("macosx") then
-                package:add("deps", "libintl")
-                package:add("deps", "libiconv", {system = true})
-            elseif package:is_plat("linux") then
-                package:add("deps", "libiconv")
-            end
+
+        if package:is_built() then
+            package:add("deps", "cmake")
         end
     end)
 
-    on_install("android", function (package)
+    on_install(function (package)
         local configs = {"-DHB_HAVE_GLIB=OFF", "-DHB_HAVE_GOBJECT=OFF"}
+
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DHB_HAVE_FREETYPE=" .. (package:config("freetype") and "ON" or "OFF"))
         table.insert(configs, "-DHB_HAVE_ICU=" .. (package:config("icu") and "ON" or "OFF"))
-        import("package.tools.cmake").install(package, configs)
-    end)
+        if package:config("icu") then
+            local lib = package:dep("icu4c")
+            if lib and not lib:is_system() then
+                local fetchinfo = lib:fetch()
 
-    on_install(function (package)
-        local configs = {"-Dtests=disabled", "-Ddocs=disabled", "-Dbenchmark=disabled", "-Dcairo=disabled"}
-        if package:is_plat("macosx") then
-            table.insert(configs, "-Dcoretext=enabled")
+                table.insert(configs, "-DICU_INCLUDE_DIRS=" .. (fetchinfo.includedirs or fetchinfo.sysincludedirs)[1])
+                table.insert(configs, "-DICU_LIBRARIES=" .. table.concat(fetchinfo.libfiles, ";"))
+            end
         end
-        table.insert(configs, "-Ddefault_library=" .. (package:config("shared") and "shared" or "static"))
-        table.insert(configs, "-Dicu=" .. (package:config("icu") and "enabled" or "disabled"))
-        table.insert(configs, "-Dfreetype=" .. (package:config("freetype") and "enabled" or "disabled"))
-        table.insert(configs, "-Dglib=" .. (package:config("glib") and "enabled" or "disabled"))
-        table.insert(configs, "-Dgobject=" .. (package:config("glib") and "enabled" or "disabled"))
-        import("package.tools.meson").install(package, configs, {packagedeps = {"libintl", "libiconv", "pcre2"}})
+
+        import("package.tools.cmake").install(package, configs)
     end)
 
     on_test(function (package)
