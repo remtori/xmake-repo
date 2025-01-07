@@ -149,7 +149,15 @@ package('skia')
         end
 
         -- installation
-        import("package.tools.gn").build(package, args, {buildir = "out"})
+        import("package.tools.gn").build(package, args, {
+            buildir = "out",
+            envs = os.joinenvs(
+                os.getenvs(),
+                {
+                    PATH = package:dep("python"):installdir("bin") .. ";" .. os.getenv("PATH"),
+                }
+            )
+        })
         os.mv("include", package:installdir())
         for _, header in ipairs(os.dirs('modules/**.h')) do
             local relative_path = path.relative(header, 'modules')
