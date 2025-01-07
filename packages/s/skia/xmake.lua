@@ -159,9 +159,9 @@ package('skia')
             )
         })
         os.mv("include", package:installdir())
-        for _, header in ipairs(os.dirs('modules/**.h')) do
+        for _, header in ipairs(os.files('modules/**.h')) do
             local relative_path = path.relative(header, 'modules')
-            local dest_dir = path.directory(path.join(package:installdir(), 'modules', relative_path))
+            local dest_dir = path.directory(path.join(package:installdir(), 'include/modules', relative_path))
 
             os.mkdir(dest_dir)
             os.mv(header, dest_dir)
