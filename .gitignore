@@ -1,5 +1,7 @@
 .xmake/
 build/
+artifact/
+dist/
 
 .DS_Store
 *.bak
